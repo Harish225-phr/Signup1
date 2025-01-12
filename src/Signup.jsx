@@ -11,23 +11,30 @@ function Signup() {
   const [data, setData] = useState([]); // State to store API data
   const [loading, setLoading] = useState(false); // State for loading indicator
   const [apiError, setApiError] = useState(""); // State for API error
-
-  // API call inside useEffect to fetch data when the page is loaded
-  const fetchData = async () => {
+const [token ,setToken] = useState();
+  // API call inside useEf fect to fetch data when the page is loaded
+  const fetchToken = async () => {
     try {
       setLoading(true);
       const response = await fetch("https://sandbox.techembryo.com/users/api/user/v1/token", {
-        method: "POST", // Change to POST if required
+        method: "POST", // POST request for fetching token
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/json", // Set content type to JSON
+          "X-Channel-Id": "WEB",
+          "Project": "TEST",
         },
         body: JSON.stringify({
-          // Pass the required body data here if needed
+          name :"harish baby",
+          clientId: "Lzf1wrUP24U1IPJYYlhfBBwPikl7y6sX",  // Add clientId
+          clientSecret: "Ll10zxNhUfChJ65YrEMe6WJagU5QDljD", // Add clientSecret
+          currentTimeMillis: Date.now() // Add currentTimeMillis
         }),
       });
-      const result = await response.json();
+      const result = await response.json(); // Parse the JSON response
       console.log("API Data:", result);
-      setData(result); // Save the data from the API response
+      setToken(result.response.token); // Save the data from the API response
+      console.log(token,"mera token ye set hua hai");
+      console.log(result.response.token,"ye kraa deye re mene");
     } catch (error) {
       console.error("Error fetching data:", error);
       setApiError("Failed to fetch data from the API."); // Set API error message
@@ -35,12 +42,17 @@ function Signup() {
       setLoading(false);
     }
   };
-
+  
   // Fetch data when the component is mounted
   useEffect(() => {
-    fetchData();
+    fetchToken();
   }, []);
-
+  
+  useEffect(() => {
+    if (token) {
+      console.log(token, " use effect meimera token ye set hua hai");
+    }
+  }, [token]);
   const handleValidation = () => {
     let formErrors = {};
     let isValid = true;
