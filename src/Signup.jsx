@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 
 function Signup() {
   const [firstName, setFirstName] = useState("");
@@ -267,6 +268,9 @@ const [token ,setToken] = useState();
                   By signing up, you confirm that you have read and accepted our{" "}
                   <a href="#">terms and conditions</a> and our{" "}
                   <a href="#">privacy policy</a>.
+                  <li>
+              <button><Link to="/Login">Login</Link></button>
+            </li>
                 </p>
                 <button type="submit" className="btn btn-primary w-100 mt-2">
                   Sign up
