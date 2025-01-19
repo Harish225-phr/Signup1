@@ -5,15 +5,9 @@ import Login from './Login';    // Import Login component
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        {/* Define routes for Login and Signup */}
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/" element={<Login />} />
-      </Routes>
-    </Router>
-  );
+   <Signup/>  
+  )
 }
+
 
 export default App;

@@ -14,7 +14,7 @@ function Signup() {
   const [apiError, setApiError] = useState(""); // State for API error
 const [token ,setToken] = useState();
   // API call inside useEf fect to fetch data when the page is loaded
-  const fetchToken = async () => {
+  const fetchToken = async () => { 
     try {
       setLoading(true);
       const response = await fetch("https://sandbox.techembryo.com/users/api/user/v1/token", {
@@ -39,6 +39,48 @@ const [token ,setToken] = useState();
     } catch (error) {
       console.error("Error fetching data:", error);
       setApiError("Failed to fetch data from the API."); // Set API error message
+    } finally {
+      setLoading(false);
+    }
+  };
+  const registerUser = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch("https://sandbox.techembryo.com/users/api/user/v1/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,  // Token added in Authorization header
+          "X-Channel-Id": "WEB",
+          "Project": "ASTRO"
+        },
+        body: JSON.stringify({
+          role: "ADMIN",
+          mode: "SELF",
+          firstName,
+          lastName,
+          email,
+          mobileNo: mobile,
+          username: email,
+          password,
+          extraParams: {
+            empCode: "emp-001",
+            anniversaryDate: "12-11-2024"
+          }
+        })
+      });
+  
+      const result = await response.json(); // Parse the response
+      if (response.ok) {
+        alert("Signup successful!");
+        console.log("Signup Response:", result);
+      } else {
+        console.error("Signup Error:", result);
+        setApiError(result.message || "Signup failed.");
+      }
+    } catch (error) {
+      console.error("Error during signup:", error);
+      setApiError("Failed to register user.");
     } finally {
       setLoading(false);
     }
@@ -134,14 +176,16 @@ const [token ,setToken] = useState();
 
       console.log("Form Data Submitted:", formData);
       alert("Form submitted successfully!");
+      registerUser();
 
+   
       // Reset form fields
-      setFirstName("");
-      setLastName("");
-      setMobile("");
-      setEmail("");
-      setPassword("");
-      setConfirmPassword("");
+      // setFirstName("");
+      // setLastName("");
+      // setMobile("");
+      // setEmail("");
+      // setPassword("");
+      // setConfirmPassword("");
     }
   };
 
