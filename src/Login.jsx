@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 
@@ -6,32 +6,84 @@ const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false); // State to manage loading indicator
-  const [error, setError] = useState(null); // State to store error messages
-
+  const [error, setError] = useState(null); 
+  const [apiError, setApiError] = useState("");// State to store error messages
+const [token ,setToken] = useState();
   // Handle form submission
-  const handleLogin = async (event) => {
-    event.preventDefault();
-    setLoading(true);
-    setError(null);
-
+  const fetchToken = async () => { 
     try {
-      // Replace with your API URL
-      const response = await axios.post('https://yourapi.com/login', {
-        email,
-        password,
+      setLoading(true);
+      const response = await fetch("https://sandbox.techembryo.com/users/api/user/v1/token", {
+        method: "POST", // POST request for fetching token
+        headers: {
+          "Content-Type": "application/json", // Set content type to JSON
+          "X-Channel-Id": "WEB",
+          "Project": "TEST",
+        },
+        body: JSON.stringify({
+          name :"harish baby",
+          clientId: "Lzf1wrUP24U1IPJYYlhfBBwPikl7y6sX",  // Add clientId
+          clientSecret: "Ll10zxNhUfChJ65YrEMe6WJagU5QDljD", // Add clientSecret
+          currentTimeMillis: Date.now() // Add currentTimeMillis
+        }),
       });
-
-      // Assuming the response contains a token
-      if (response.data.token) {
-        // Save the token (could use localStorage or a global state)
-        localStorage.setItem('token', response.data.token);
-        alert('Login successful!');
-        // Redirect to dashboard or another page
-        window.location.href = '/dashboard'; // Update this according to your routing structure
+      const result = await response.json(); // Parse the JSON response
+      console.log("API Data:", result);
+      setToken(result.response.token); // Save the data from the API response
+      console.log(token,"mera token ye set hua hai");
+      console.log(result.response.token,"ye kraa deye re mene");
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      setApiError("Failed to fetch data from the API."); // Set API error message
+    } finally {
+      setLoading(false);
+    }
+  };
+    useEffect(() => {
+      fetchToken();
+    }, []);
+    
+    useEffect(() => {
+      if (token) {
+        console.log(token, " use effect meimera token ye set hua hai");
       }
-    } catch (err) {
-      setError('Invalid email or password');
-      console.error(err);
+    }, [token]);
+
+  const handleLogin = async (event) => {
+    event.preventDefault(); // Prevent default form submission behavior
+    console.log("Login button clicked");
+    
+    try {
+      setLoading(true);
+      const response = await fetch("https://sandbox.techembryo.com/users/api/user/v1/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,  // Token added in Authorization header
+          "X-Channel-Id": "WEB",
+          "Project": "TEST"
+        },
+
+
+        body: JSON.stringify({
+          username: email,
+          password: password,  // Ensure password is properly referenced
+          currentTimeMillis: new Date().getTime() // Getting current time in milliseconds
+        })
+        
+      });
+  
+      const result = await response.json(); // Parse the response
+      if (response.ok) {
+        alert("Login successful!");
+        console.log("Signup Response:", result);
+      } else {
+        console.error("Signup Error:", result);
+        setError(result.message || "Signup failed.");
+      }
+    } catch (error) {
+      console.error("Error during signup:", error);
+      setApiError("Failed to register user.");
     } finally {
       setLoading(false);
     }
@@ -88,7 +140,7 @@ const LoginPage = () => {
 
                 <p className="mt-3 text-center">
                   Don't have an account?{' '}
-                 <button><Link to="/signup">Sign up here</Link></button>
+                  <Link to="/signup" className="btn btn-link">Sign up here</Link>
                 </p>
               </form>
             )}
@@ -100,62 +152,3 @@ const LoginPage = () => {
 };
 
 export default LoginPage;
-
-import React, { useState } from 'react';
-
-function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    try {
-      const response = await fetch('https://reqres.in/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        setMessage(`Login successful! Token: ${data.token}`);
-      } else {
-        setMessage(`Error: ${data.error}`);
-      }
-    } catch (error) {
-      setMessage('Something went wrong!');
-    }
-  };
-
-  return (
-    <div>
-      <h2>Login</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Email:</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label>Password:</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-        <button type="submit">Login</button>
-      </form>
-      <p>{message}</p>
-    </div>
-  );
-}
-
-export default Login;
